@@ -3,20 +3,11 @@ layout: base
 title: Luis Felipe Vilella
 ---
 
-<section>
-<!--  <div class="header-home">-->
-<!--    <div class="container-sm">-->
-<!--      <h1 class="title">What's up</h1>-->
-<!--      <p>I'm <b>LUÍS FELIPE VILELLA</b>, a Web Developer passionate about new technologies and-->
-<!--        open source.</p>-->
-<!--    </div>-->
-<!--  </div>-->
-
+<section id="app">
   {% include navbar.html %}
-
   <br><br>
 
-  <div class="container-sm">
+  <div class="container-sm" v-if="isHomePage">
     <h1>É viável usar QR Code no meu problema de autenticação?</h1>
 
     <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
@@ -24,51 +15,534 @@ title: Luis Felipe Vilella
     <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
     <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
 
-    <button type="button" class="btn btn-success">Iniciar Diagnóstico</button>
-
-    <hr>
-    <div id="app">TOMA NO CU VIU 2: {{ message }}</div>
-    <hr>
-
+    <button type="button" class="btn btn-success" @click="startDiagnostic()">Iniciar Diagnóstico</button>
   </div>
 
-  <script type="module">
-      import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+  <div class="container-sm" v-if="!isHomePage && !isDiagnosticPage">
+      <div v-for="item in questionsForState">
+        <div class="card-project" v-if="state == item.state && forkType == item.forkType">
+          <p>[[ item.question ]]</p>
+          <div class="form-check form-check-inline"  v-for="answer in item.answers">
+            <input class="form-check-input" type="radio" :name="`inlineRadioOptions-${item.id}`" :id="`${answer.id}`">
+            <label class="form-check-label" :for="`${answer.id}`">[[ answer.value ]]</label>
+          </div>
+          <br>
+        </div>
+      </div>
+      <button type="button" class="btn btn-success" @click="goToNextPage()">Confirmar</button>
+  </div>
 
-      createApp({
-          data() {
-              return {
-                  message: 'Hello Vue!'
-              }
-          }
-      }).mount('#app')
-  </script>
+  <div class="container-sm" v-if="isDiagnosticPage">
+    <ul>
+      <li v-for="item in diagnostic">
+        [[ item ]]
+      </li>
+    </ul>
+  </div>
 
-<!--  {% for project in site.projects %}-->
-<!--  <div class="container-sm">-->
-<!--    <div class="card-project">-->
-<!--      <div class="preview">-->
-<!--        <img src="{{project.img_url}}">-->
-<!--      </div>-->
-<!--      <div class="info">-->
-<!--        <h2>{{ project.title }}</h2>-->
-<!--        <p>{{ project.description }}</p>-->
-<!--        {% if project.github_url %}-->
-<!--        <a class="btn btn-git" href="{{ project.github_url }}" target="_blank" rel="noopener noreferrer">-->
-<!--          <i class="fab fa-github"></i></a>-->
-<!--        {% endif %}-->
-<!--        {% if project.project_url %}-->
-<!--        <a class="btn disabled" href="{{ project.project_url }}" target="_blank" rel="noopener noreferrer" role="button"-->
-<!--          aria-disabled="true">-->
-<!--          View Demo</a>-->
-<!--        {% endif %}-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--  <br>-->
-<!--  {% endfor %}-->
-
-  <br><br><br>
-
+  <br><br>
   {% include footer.html %}
 </section>
+
+<script type="module">
+    import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+    const USER_TYPE = 'user';
+    const SERVER_TYPE = 'server';
+
+    createApp({
+        delimiters: ['[[', ']]'],
+        data() {
+            return {
+                isHomePage: false,
+                isDiagnosticPage: false,
+                forkType: undefined,
+                state: 0,
+                questionsForState: [
+                    {
+                        id: "question-1",
+                        state: 0,
+                        question: "O público alvo do seu problema tem disponibilidade de smartphone ou algum dispositivo leitor de QR Code?",
+                        answers: [
+                            {
+                                id: "question-1-a1",
+                                value: "Sim",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-1-a2",
+                                value: "Não",
+                                diagnostic: "É necessário ter algum dispositivo leitor de QR Code",
+                                isEndOfDiagnostic: true,
+                            },
+                        ],
+                    },
+                    {
+                        id: "question-2",
+                        state: 0,
+                        question: "Seu público alvo terá conexão com a internet?",
+                        answers: [
+                            {
+                                id: "question-2-a1",
+                                value: "Sim",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-2-a2",
+                                value: "Não",
+                                diagnostic: "É necessário ter conexão com a internet",
+                                isEndOfDiagnostic: true,
+                            },
+                        ],
+                    },
+                    {
+                        id: "question-3",
+                        state: 1,
+                        question: "O usuário ou o servidor vai ler o QR Code?",
+                        answers: [
+                            {
+                                id: "question-3-a1",
+                                value: "Usuário",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-3-a2",
+                                value: "Servidor",
+                                diagnostic: null,
+                            },
+                        ],
+                    },
+                    {
+                        id: "question-4-user",
+                        state: 2,
+                        forkType: USER_TYPE,
+                        question: "O QR Code vai estar acoplado e um objeto do mundo físico (estático) ou será gerado por um servidor (dinâmico)?",
+                        answers: [
+                            {
+                                id: "question-4-user-a1",
+                                value: "Estático",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-4-user-a2",
+                                value: "Dinâmico",
+                                diagnostic: null,
+                            },
+                        ],
+                    },
+                    {
+                        id: "question-4-server",
+                        state: 2,
+                        forkType: SERVER_TYPE,
+                        question: "O terminal que interage com o servidor tem acesso á câmera (web browser) ou será feito upload do QR Code para o servidor?",
+                        answers: [
+                            {
+                                id: "question-4-server-a1",
+                                value: "Acesso à câmera",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-4-server-a2",
+                                value: "Upload",
+                                diagnostic: "Não é muito indicado, por questões de usabilidade",
+                                isEndOfDiagnostic: true,
+                            },
+                        ],
+                        suggestion: "A origem do QR Code deve ser conhecida. Possivelmente gerado pelo proprio sistema em outra etapa da autenticação"
+                    },
+                    {
+                        id: "question-5-user-static-qr-code",
+                        state: 3,
+                        forkType: 'user-static-qr-code',
+                        question: "Deseja fazer um cruzamento dos dados para confirmar a entidade? Exemplo check-in.",
+                        answers: [
+                            {
+                                id: "question-5-user-static-qr-code-a1",
+                                value: "Sim",
+                                diagnostic: "TODO: É viável utilizar QR Code, porém tem que 'arquiteturar' como funciona esse cruzamento de dados com o servidor",
+                            },
+                            {
+                                id: "question-5-user-static-qr-code-a2",
+                                value: "Não",
+                                diagnostic: "Caso de autenticação via QR Code não definido. Cenário se assemelha a utilização da tecnologia para outros propósitos como na publicidade ou marketing",
+                                isEndOfDiagnostic: true,
+                            },
+                        ],
+                        suggestion: "TODO: Adicionar cuidados de Correção de erro relacionando ao lugar && Adicionar cuidados fraude do código"
+                    },
+                    {
+                        id: "question-5-user-dynamic-qr-code",
+                        state: 3,
+                        forkType: 'user-dynamic-qr-code',
+                        question: "Sua composição de autenticação já tem o primeiro fator de autenticação? Exemplo email/password",
+                        answers: [
+                            {
+                                id: "question-5-user-dynamic-qr-code-a1",
+                                value: "Sim",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-5-user-dynamic-qr-code-a2",
+                                value: "Não",
+                                diagnostic: null,
+                                suggestion: "TODO: Sugerir fator de autenticação, como user/password",
+                            },
+                        ],
+                        suggestion: "Adicionar cuidados fraude do código (criar um mock igual do website)",
+                    },
+                    {
+                        id: "question-5-server",
+                        state: 3,
+                        forkType: 'server-camera-access',
+                        question: "O QR Code que será lido está sincronizado com o servidor? Ou seja, ambos seguem o mesmo protocolo de comunicação?",
+                        answers: [
+                            {
+                                id: "question-5-server-a1",
+                                value: "Sim",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-5-server-a2",
+                                value: "Não",
+                                diagnostic: "É necessário que o servidor e o QR Code estejam sincronizados",
+                                isEndOfDiagnostic: true,
+                            },
+                        ],
+                        suggestion: "TODO: A lógica de processamento pelo servidor deve ser bem concisa e tolerante a falhas"
+                    },
+                    {
+                        id: "question-6-user",
+                        state: 4,
+                        forkType: USER_TYPE,
+                        question: "Deseja adicionar o fator OTP na composição MFA?",
+                        answers: [
+                            {
+                                id: "question-6-user-a1",
+                                value: "Sim",
+                                diagnostic: "TODO: Adicionar ao diagnostico, falar dos pontos de implemetação",
+                            },
+                            {
+                                id: "question-6-user-a2",
+                                value: "Não",
+                                diagnostic: null,
+                            },
+                        ],
+                    },
+                    {
+                        id: "question-6-server",
+                        state: 4,
+                        forkType: SERVER_TYPE,
+                        question: "Sua composição de autenticação já tem o primeiro fator de autenticação?",
+                        answers: [
+                            {
+                                id: "question-6-server-a1",
+                                value: "Sim",
+                                diagnostic: null,
+                            },
+                            {
+                                id: "question-6-server-a2",
+                                value: "Não",
+                                diagnostic: null,
+                                suggestion: "TODO: Sugerir fator de autenticação, como user/password",
+                            },
+                        ],
+                        suggestion: "Adicionar cuidados fraude do código (criar um mock igual do website)",
+                    },
+                    {
+                        id: "question-7-user",
+                        state: 5,
+                        forkType: USER_TYPE,
+                        question: "Deseja adicionar o fator biométrico na composição MFA?",
+                        answers: [
+                            {
+                                id: "question-7-user-a1",
+                                value: "Sim",
+                                diagnostic: "TODO: Adicionar ao diagnostico, falar dos pontos de implemetação",
+                            },
+                            {
+                                id: "question-7-user-a2",
+                                value: "Não",
+                                diagnostic: null,
+                            },
+                        ],
+                    },
+                    {
+                        id: "question-7-server",
+                        state: 5,
+                        forkType: SERVER_TYPE,
+                        question: "Deseja adicionar o fator OTP na composição MFA?",
+                        answers: [
+                            {
+                                id: "question-7-server-a1",
+                                value: "Sim",
+                                diagnostic: "TODO: Adicionar ao diagnostico, falar dos pontos de implemetação",
+                            },
+                            {
+                                id: "question-7-server-a2",
+                                value: "Não",
+                                diagnostic: null,
+                            },
+                        ],
+                    },
+                    {
+                        id: "question-7.1-server",
+                        state: 5,
+                        forkType: SERVER_TYPE,
+                        question: "Caso sim, deseja substituir o numeral do OTP por one-time QR Codes?",
+                        answers: [
+                            {
+                                id: "question-7-server-a1",
+                                value: "Sim",
+                                diagnostic: null,
+                                suggestion: "TODO: Explicar implementação",
+                            },
+                            {
+                                id: "question-7-server-a2",
+                                value: "Não",
+                                diagnostic: null,
+                            },
+                        ],
+                    },
+                ],
+                lastState: 5,
+                diagnostic: [],
+            }
+        },
+        methods: {
+            startDiagnostic() {
+                this.isHomePage = false;
+            },
+            _getQuestionsByStateAndForkType(state, forkType=undefined) {
+                const questions = [];
+                for (let i = 0; i < this.questionsForState.length; i++) {
+                    const item = this.questionsForState[i];
+                    if (item.state == state && item.forkType == forkType) {
+                        questions.push(item)
+                    }
+                }
+                return questions;
+            },
+            _getQuestionsFromCurrentState() {
+                return this._getQuestionsByStateAndForkType(this.state);
+            },
+            _setEndOfDiagnostic() {
+                this.forkType = undefined;
+                this.isDiagnosticPage = true;
+                this.state = 0;
+            },
+            _handleQuestionsForState0() {
+                const questions = this._getQuestionsByStateAndForkType(0);
+                let finishDiagnostic = false;
+                for (let i = 0; i < questions.length; i++) {
+                    const item = questions[i];
+
+                    for (let j = 0; j < item.answers.length; j++) {
+                        const answer = item.answers[j];
+                        if (document.getElementById(answer.id).checked && answer.diagnostic) {
+                            this.diagnostic.push(answer.diagnostic);
+                            finishDiagnostic = answer.isEndOfDiagnostic;
+                        }
+                    }
+                }
+                if (finishDiagnostic === true) {
+                    this._setEndOfDiagnostic();
+                }
+            },
+            _handleQuestionsForState1() {
+                const questions = this._getQuestionsByStateAndForkType(1);
+                const userGonnaReadQRCodeAnswer = questions[0].answers[0];
+                const followUserFlow = document.getElementById(userGonnaReadQRCodeAnswer.id).checked;
+                this.forkType = followUserFlow ? USER_TYPE : SERVER_TYPE;
+            },
+            _handleQuestionsForState2() {
+                const questions = this._getQuestionsByStateAndForkType(2, this.forkType);
+                const question = questions[0];
+                if (this.forkType == USER_TYPE) {
+                    const isDynamicQRCodeAnswer = question.answers[1];
+                    const isDynamicQRCode = document.getElementById(isDynamicQRCodeAnswer.id).checked;
+                    this.forkType = isDynamicQRCode ? 'user-dynamic-qr-code' : 'user-static-qr-code';  // TODO: move to constants
+                }
+                else if (this.forkType == SERVER_TYPE) {
+                    const hasCameraAccessAnswer = question.answers[0];
+                    const hasCameraAccess = document.getElementById(hasCameraAccessAnswer.id).checked;
+                    this.forkType = hasCameraAccess ? 'server-camera-access' : 'server-upload-qr-code';  // TODO: move to constants
+                    if (!hasCameraAccess) {
+                        const isUploadAnswer = question.answers[1];
+                        this.diagnostic.push(isUploadAnswer.diagnostic);
+                        if (isUploadAnswer.isEndOfDiagnostic) {
+                            this._setEndOfDiagnostic();
+                        }
+                    }
+                }
+            },
+            _handleQuestionsForState3() {
+                const questions = this._getQuestionsByStateAndForkType(3, this.forkType);
+                const question = questions[0];
+                switch (this.forkType) {
+                    case 'user-static-qr-code':
+                        const doesNotWantToCrossDataToConfirmEntityAnswer = question.answers[1];
+                        const doesNotWantToCrossDataToConfirmEntity = document.getElementById(
+                            doesNotWantToCrossDataToConfirmEntityAnswer.id).checked;
+                        if (doesNotWantToCrossDataToConfirmEntity) {
+                            this.diagnostic.push(doesNotWantToCrossDataToConfirmEntityAnswer.diagnostic);
+                            this._setEndOfDiagnostic();
+                        }
+                        else {
+                            const answer = question.answers[0];
+                            this.diagnostic.push(answer.diagnostic);
+                            this.diagnostic.push(question.suggestion);  // TODO: Add on suggestion scope
+                        }
+                        this.forkType = USER_TYPE;  // Go back to user branch
+                        break;
+                    case 'user-dynamic-qr-code':
+                        const userHasNot1FAAnswer = question.answers[1];
+                        const userHasNot1FA = document.getElementById(userHasNot1FAAnswer.id).checked;
+                        if (userHasNot1FA) {
+                            this.diagnostic.push(userHasNot1FAAnswer.suggestion);  // TODO: Add on suggestion scope
+                        }
+                        this.diagnostic.push(question.suggestion);  // TODO: Add on suggestion scope
+                        this.forkType = USER_TYPE;  // Go back to user branch
+                        break;
+                    case 'server-camera-access':
+                        const qrCodeIsNotSyncAnswer = question.answers[1];
+                        const qrCodeIsNotSync = document.getElementById(qrCodeIsNotSyncAnswer.id).checked;
+                        if (qrCodeIsNotSync && qrCodeIsNotSyncAnswer.isEndOfDiagnostic) {
+                            this.diagnostic.push(qrCodeIsNotSyncAnswer.diagnostic);
+                            this._setEndOfDiagnostic()
+                        }
+                        else {
+                            this.diagnostic.push(question.suggestion);  // TODO: Add on suggestion scope
+                        }
+                        this.forkType = SERVER_TYPE;  // Go back to server branch
+                        break;
+                    case 'server-upload-qr-code':
+                        this._setEndOfDiagnostic();
+                        this.forkType = SERVER_TYPE;  // Go back to server branch
+                        break
+                }
+                // if (this.forkType == 'user-static-qr-code') {
+                //     const doesNotWantToCrossDataToConfirmEntityAnswer = question.answers[1];
+                //     const doesNotWantToCrossDataToConfirmEntity = document.getElementById(
+                //         doesNotWantToCrossDataToConfirmEntityAnswer.id).checked;
+                //     if (doesNotWantToCrossDataToConfirmEntity) {
+                //         this.diagnostic.push(doesNotWantToCrossDataToConfirmEntityAnswer.diagnostic);
+                //         this._setEndOfDiagnostic();
+                //     }
+                //     else {
+                //         const answer = question.answers[0];
+                //         this.diagnostic.push(answer.diagnostic);
+                //         this.diagnostic.push(question.suggestion);  // TODO: Add on suggestion scope
+                //     }
+                //     this.forkType = USER_TYPE;  // Go back to user branch
+                // }
+                // else if (this.forkType == 'user-dynamic-qr-code') {
+                //     const userHasNot1FAAnswer = question.answers[1];
+                //     const userHasNot1FA = document.getElementById(userHasNot1FAAnswer.id).checked;
+                //     if (userHasNot1FA) {
+                //         this.diagnostic.push(userHasNot1FAAnswer.suggestion);  // TODO: Add on suggestion scope
+                //     }
+                //     this.forkType = USER_TYPE;  // Go back to user branch
+                // }
+                // else if (this.forkType == 'server-camera-access') {
+                //     const qrCodeIsNotSyncAnswer = question.answers[1];
+                //     const qrCodeIsNotSync = document.getElementById(qrCodeIsNotSyncAnswer.id).checked;
+                //     if (qrCodeIsNotSync && qrCodeIsNotSyncAnswer.isEndOfDiagnostic) {
+                //         this.diagnostic.push(qrCodeIsNotSyncAnswer.diagnostic);
+                //         this._setEndOfDiagnostic()
+                //     }
+                //     else {
+                //         this.diagnostic.push(question.suggestion);  // TODO: Add on suggestion scope
+                //     }
+                //     this.forkType = SERVER_TYPE;  // Go back to server branch
+                // }
+                // else if (this.forkType == 'server-upload-qr-code') {
+                //     this._setEndOfDiagnostic();
+                //     this.forkType = SERVER_TYPE;  // Go back to server branch
+                // }
+            },
+            _handleQuestionsForState4() {
+                const questions = this._getQuestionsByStateAndForkType(4, this.forkType);
+                const question = questions[0];
+                if (this.forkType == USER_TYPE) {
+                    const userWantToAddOTPAnswer = question.answers[0];
+                    const userWantToAddOTP = document.getElementById(userWantToAddOTPAnswer.id).checked;
+                    if (userWantToAddOTP) {
+                        this.diagnostic.push(userWantToAddOTPAnswer.diagnostic);
+                    }
+                }
+                else if (this.forkType == SERVER_TYPE) {
+                    const userHasNot1FAAnswer = question.answers[1];
+                    const userHasNot1FA = document.getElementById(userHasNot1FAAnswer.id).checked;
+                    if (userHasNot1FA) {
+                        this.diagnostic.push(userHasNot1FAAnswer.suggestion);  // TODO: Add on suggestion scope
+                    }
+                    this.diagnostic.push(question.suggestion);  // TODO: Add on suggestion scope
+                }
+            },
+            _handleQuestionsForState5() {
+                const questions = this._getQuestionsByStateAndForkType(5, this.forkType);
+                const question = questions[0];
+                if (this.forkType == USER_TYPE) {
+                    const userWantToAddBiometricFAAnswer = question.answers[0];
+                    const userWantToAddBiometricFA = document.getElementById(userWantToAddBiometricFAAnswer.id).checked;
+                    if (userWantToAddBiometricFA) {
+                        this.diagnostic.push(userWantToAddBiometricFAAnswer.diagnostic);
+                    }
+                }
+                else if (this.forkType == SERVER_TYPE) {
+                    const userWantToAddOTPAnswer = question.answers[0];
+                    const userWantToAddOTP = document.getElementById(userWantToAddOTPAnswer.id).checked;
+                    if (userWantToAddOTP) {
+                        this.diagnostic.push(userWantToAddOTPAnswer.diagnostic);
+                    }
+
+                    const secondQuestion = questions[1];
+                    const userWantToReplaceOTPNumeralToCodesAnswer = secondQuestion.answers[0]
+                    const userWantToReplaceOTPNumeralToCodes = document.getElementById(
+                        userWantToReplaceOTPNumeralToCodesAnswer.id).checked;
+                    debugger;
+                    if (userWantToReplaceOTPNumeralToCodes) {
+                        this.diagnostic.push(userWantToReplaceOTPNumeralToCodesAnswer.diagnostic);
+                    }
+                }
+
+                this.forkType = undefined;  // Finish branches
+            },
+            _handleQuestionFromCurrentState() {
+                switch (this.state) {
+                    case 0:
+                        this._handleQuestionsForState0();
+                        break;
+                    case 1:
+                        this._handleQuestionsForState1();
+                        break;
+                    case 2:
+                        this._handleQuestionsForState2();
+                        break;
+                    case 3:
+                        this._handleQuestionsForState3();
+                        break;
+                    case 4:
+                        this._handleQuestionsForState4();
+                        break;
+                    case 5:
+                        this._handleQuestionsForState5();
+                        break;
+                }
+            },
+            goToNextPage() {
+                this._handleQuestionFromCurrentState();
+
+                const diagnosticAlreadyFinish = this.isDiagnosticPage;
+                if (diagnosticAlreadyFinish) {
+                    return;
+                }
+
+                this.state += 1;
+                if (this.state > this.lastState) {
+                    this._setEndOfDiagnostic();
+                }
+            }
+        }
+    }).mount('#app')
+</script>
