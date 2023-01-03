@@ -20,7 +20,6 @@ createApp({
                     id: "question-1",
                     state: 0,
                     question: "O público alvo do seu problema tem disponibilidade de smartphone ou algum dispositivo leitor de QR Code?",
-                    helper: "One-time password (OTP) são códigos aleatórios, normalmente válido por um período de tempo predefinido e razoável que nunca será usado ou gerado novamente.",
                     answers: [
                         {
                             id: "question-1-a1",
