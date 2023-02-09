@@ -4,7 +4,7 @@
 
 Workflow de uso de QR-Code na autenticação
 
-Open: <comming-soon>
+Open: http://workflow-qr-code2auth.lfvilella.com/
 
 ## Running locally
 
