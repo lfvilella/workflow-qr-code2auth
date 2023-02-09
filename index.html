@@ -79,12 +79,16 @@ title: QRCode2Auth
         </li>
       </ul>
 
-      <h5>Sugestões:</h5>
-      <ul>
-        <li v-for="item in suggestions">
-          [[ item ]]
-        </li>
-      </ul>
+      <div v-if="suggestions">
+        <h5>Sugestões:</h5>
+        <ul>
+          <li v-for="suggestion in suggestions">
+            [[ suggestion ]]
+          </li>
+        </ul>
+      </div>
+
+      <button type="button" class="btn btn-success" @click="restartDiagnostic()">Reiniciar Diagnóstico</button>
     </div>
     <div class="card-diagnostic card-diagnostic-negative" v-if="!shouldYouUseQRCode">
       <h3><span class="diagnostic-negative-text">Não é viável</span> usar QR Code em seu problema.</h3>
@@ -94,6 +98,7 @@ title: QRCode2Auth
           [[ item ]]
         </li>
       </ul>
+      <button type="button" class="btn btn-success" @click="restartDiagnostic()">Reiniciar Diagnóstico</button>
     </div>
   </div>
 

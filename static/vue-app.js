@@ -399,6 +399,15 @@ createApp({
         startDiagnostic() {
             this.isHomePage = false;
         },
+        restartDiagnostic() {
+            this.isHomePage = false;
+            this.isDiagnosticPage = false;
+            this.shouldYouUseQRCode = undefined;
+            this.forkType = undefined;
+            this.state = 0;
+            this.diagnostic = [];
+            this.suggestions = [];
+        },
         _getQuestionsByStateAndForkType(state, forkType=undefined) {
             const questions = [];
             for (let i = 0; i < this.questionsForState.length; i++) {
